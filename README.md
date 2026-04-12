@@ -12,17 +12,15 @@ Ideas start as GitHub issues, agents turn approved ideas into specs, humans revi
 
 This repository is intentionally docs-only. Application code should live in one or more separate implementation repositories.
 
-## Template Setup
+## Initial GitHub Setup
 
-If you publish this repository as a GitHub template, do this in each new repo before using the workflow:
+When you create a repository from this template, complete these GitHub settings once:
 
-1. Create the labels used by the workflow:
+1. Create the workflow labels:
    `backlog`, `needs-spec`, `spec-draft`, `approved`, `in-progress`, `implemented`, `blocked`, `decision-needed`
 2. Protect `main` and require PR review before merge.
-3. Update [`AGENTS.md`](./AGENTS.md) if your implementation repos, review rules, or team routing differ from the defaults here.
-4. Keep [`specs/README.md`](./specs/README.md) and [`decisions/README.md`](./decisions/README.md) current as docs are added or superseded.
 
-The issue and PR templates live in git. Labels and branch protection do not, so they must be set up in GitHub.
+Issue templates, PR templates, repo structure, and agent instructions already come from the template itself.
 
 ## Recommended workflow
 
