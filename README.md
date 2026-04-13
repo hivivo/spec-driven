@@ -7,8 +7,9 @@ Ideas start as GitHub issues, agents turn approved ideas into specs, humans revi
 
 - Product and feature specs
 - Architecture decision records (ADRs)
-- Workflow guidance for humans and agents
+- Workflow guidance for humans and automation
 - GitHub issue and PR templates for moving work forward
+- Runtime instructions for drafting agents
 
 This repository is intentionally docs-only. Application code should live in one or more separate implementation repositories.
 
@@ -18,22 +19,38 @@ When you create a repository from this template, complete these GitHub settings 
 
 1. Create the workflow labels:
    `backlog`, `needs-spec`, `spec-draft`, `approved`, `in-progress`, `implemented`, `blocked`, `decision-needed`
-2. Protect `main` and require PR review before merge.
+2. If you use the bundled `@codex` automation example, set up Codex cloud for the repository and connect GitHub access in Codex.
+3. Set Actions workflow permissions to `Read and write` so the example workflows can comment on issues and update labels.
+4. Protect `main` and require PR review before merge.
 
 Issue templates, PR templates, repo structure, and agent instructions already come from the template itself.
 
 ## Recommended workflow
 
 1. Create a GitHub issue for an idea, bug, feature request, or workflow improvement.
-2. Start the issue in `backlog`. When it is ready for drafting, remove `backlog` and apply `needs-spec`.
-3. A spec-writing agent creates a branch such as `spec/42-notifications`, drafts a spec file such as `specs/42-notifications.md`, applies `spec-draft`, and removes `needs-spec`.
-4. The agent updates the catalogs in `specs/README.md` and `decisions/README.md` when specs or ADRs are added, replaced, or superseded.
-5. The agent opens a PR in this repo, links the issue in the PR description, and avoids `Fixes`, `Closes`, or other auto-closing keywords.
-6. Before requesting review, make sure the draft is already complete enough for automatic implementation pickup after merge: implementation guidance is present, relevant ADRs and dependencies are linked, and acceptance criteria are concrete.
-7. A human reviews the PR, requests changes if needed, and merges it when the spec is approved.
-8. After merge, the issue is relabeled to `approved`, `spec-draft` is removed, and the merged spec on `main` becomes the approved implementation contract.
-9. An implementation agent may pick up the approved spec in the code repo without a second human prompt, link back to the merged spec and original issue, and mark the issue `in-progress`.
-10. When implementation ships, update the issue or implementation PRs with links and status, remove `in-progress`, and move the issue to `implemented`.
+2. Start the issue in `backlog`.
+3. When the issue is ready for specification, move it into your chosen drafting flow. That can be manual or automation-driven.
+4. A drafting agent creates a branch such as `spec/42-notifications`, drafts the spec, updates the catalogs when needed, and opens a PR in this repo.
+5. The spec PR links the issue without closing it.
+6. A human reviews the PR, requests changes if needed, and merges it when the spec is approved.
+7. After merge, the issue is relabeled to `approved`, and the merged spec on `main` becomes the approved implementation contract.
+8. An implementation agent may pick up the approved spec in the code repo without a second human prompt, link back to the merged spec and original issue, and mark the issue `in-progress`.
+9. When implementation ships, update the issue or implementation PRs with links and status, remove `in-progress`, and move the issue to `implemented`.
+
+## Example automation
+
+This template can support multiple automation patterns.
+One example lives in [`.github/workflows/request-spec-draft.yml`](./.github/workflows/request-spec-draft.yml).
+
+That example uses the `needs-spec` label as a trigger:
+
+1. A human removes `backlog` and applies `needs-spec`.
+2. A workflow posts a short issue comment that tags `@codex` and points it at `AGENTS.md`.
+3. The drafting agent reads the issue, drafts the spec, updates the catalogs, and opens or updates a PR.
+4. On success, the drafting agent removes `needs-spec`, adds `spec-draft`, and replies on the issue with the PR link.
+5. If the drafting agent cannot proceed, it adds `blocked` and explains the blocker in an issue comment.
+
+This keeps the automation simple: the workflow only triggers the drafting task, and the drafting agent owns the resulting issue state.
 
 ## Repository structure
 
@@ -43,28 +60,28 @@ README.md
 templates/
   adr.md
   spec.md
-specs/
-decisions/
 .github/
   ISSUE_TEMPLATE/
     feature-request.md
+  workflows/
+    request-spec-draft.yml
   PULL_REQUEST_TEMPLATE.md
+specs/
+decisions/
 ```
 
 ## GitHub issue labels
 
-Use issue labels to show what stage the work is in:
+Use issue labels to show what stage the work is in. Humans, workflows, and drafting agents may change labels when they are responsible for the transition.
 
 - `backlog`: captured idea, not ready for drafting yet
-- `needs-spec`: ready for a spec draft; this is the main queue for spec-writing agents; remove `backlog` when this is applied
+- `needs-spec`: ready for a spec draft; in the bundled example automation this causes the repo to tag `@codex`; remove `backlog` when this is applied
 - `spec-draft`: a spec branch or PR exists; remove `needs-spec` when this is applied
 - `approved`: the spec PR is merged and implementation may start automatically; remove `spec-draft`
 - `in-progress`: implementation has started in a code repo
 - `implemented`: implementation is merged or shipped; remove `in-progress`
-- `blocked`: waiting on an external dependency or decision
-- `decision-needed`: requires explicit human input or an ADR
-
-If you have permission to update labels, keep them current as the work moves. If not, note the intended label change in the PR description or a PR comment.
+- `blocked`: work cannot proceed until an external dependency or decision is resolved; this can temporarily coexist with `needs-spec` or `in-progress`
+- `decision-needed`: requires explicit human input or an ADR; this can coexist with another workflow label
 
 GitHub issue labels are the workflow state for this repo. Do not add or rely on document-level `status` fields in spec or ADR front matter.
 GitHub issue assignees and PR reviewers carry active ownership. Specs should not add a generic `owner` field.
@@ -112,6 +129,7 @@ Keep a complete chain of references:
 - Implementation PR -> merged spec and issue
 
 The important detail is that spec PRs should link issues without closing them. The issue should stay open until implementation is actually complete, even if implementation starts automatically after the spec merges.
+If your tooling supports manually linking a PR in the issue's Development section, use that. Otherwise include `Refs #<issue-number>` in the PR body so the relationship is still visible.
 
 ## Suggested branch and PR naming
 
