@@ -1,0 +1,34 @@
+name: Request Spec Draft
+
+on:
+  issues:
+    types: [labeled]
+
+concurrency:
+  group: request-spec-draft-${{ github.repository }}-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  request:
+    if: ${{ github.event.label.name == 'needs-spec' && github.event.issue.state == 'open' }}
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Ask @codex to draft the spec
+        uses: actions/github-script@v7
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const body = [
+              "<!-- spec-draft-request -->",
+              "@codex please create a spec PR for this issue by following AGENTS.md. Reply here with the PR link when it is ready.",
+            ].join("\n");
+
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: Number(process.env.ISSUE_NUMBER),
+              body,
+            });
