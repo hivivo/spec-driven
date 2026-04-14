@@ -19,7 +19,7 @@ List the actual spec or ADR files changed in this PR.
 - [ ] Acceptance criteria are testable
 - [ ] Open questions are called out
 - [ ] Linked issue should remain open after this PR merges
-- [ ] If this PR adds or updates a spec, merging it should make implementation safe to start automatically
+- [ ] If this PR adds a spec, merging it should make implementation safe to start automatically
 - [ ] Catalogs are updated if specs or ADRs were added, replaced, or superseded
 
 ## Follow-up expected after merge
