@@ -3,8 +3,6 @@
 This repository is the planning and approval layer for an agentic spec-driven project.
 Ideas start as GitHub issues, agents turn approved ideas into specs, humans review and merge those specs, and implementation agents may automatically pick up merged specs from `main`.
 
-If you are using this repository as a template, start with [SETUP.md](./SETUP.md).
-
 ## What lives here
 
 - Product and feature specs
@@ -29,8 +27,11 @@ This repository is intentionally docs-only. Application code should live in one 
 
 ## Automation
 
-This repository can support multiple automation patterns.
-The bundled setup example is described in [SETUP.md](./SETUP.md).
+This repository includes a lightweight drafting workflow in [`.github/workflows/request-spec-draft.yml`](./.github/workflows/request-spec-draft.yml).
+
+When `needs-spec` is applied to an issue, the workflow posts a short `@codex` comment that points the drafting agent at `AGENTS.md`. The drafting agent creates the spec PR, updates issue labels, and replies on the issue with the PR link.
+
+This keeps the automation narrow: the workflow triggers the drafting task, and the drafting agent owns the resulting issue state.
 
 ## Repository structure
 
@@ -56,7 +57,7 @@ decisions/
 Use issue labels to show what stage the work is in. Humans, workflows, and drafting agents may change labels when they are responsible for the transition.
 
 - `backlog`: captured idea, not ready for drafting yet
-- `needs-spec`: ready for a spec draft; in the bundled example automation this causes the repo to tag `@codex`; remove `backlog` when this is applied
+- `needs-spec`: ready for a spec draft; remove `backlog` when this is applied
 - `spec-draft`: a spec branch or PR exists; remove `needs-spec` when this is applied
 - `approved`: the spec PR is merged and implementation may start automatically; remove `spec-draft`
 - `in-progress`: implementation has started in a code repo
