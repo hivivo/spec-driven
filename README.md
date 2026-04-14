@@ -13,18 +13,6 @@ Ideas start as GitHub issues, agents turn approved ideas into specs, humans revi
 
 This repository is intentionally docs-only. Application code should live in one or more separate implementation repositories.
 
-## Initial GitHub Setup
-
-When you create a repository from this template, complete these GitHub settings once:
-
-1. Create the workflow labels:
-   `backlog`, `needs-spec`, `spec-draft`, `approved`, `in-progress`, `implemented`, `blocked`, `decision-needed`
-2. If you use the bundled `@codex` automation example, set up Codex cloud for the repository and connect GitHub access in Codex.
-3. Set Actions workflow permissions to `Read and write` so the example workflows can comment on issues and update labels.
-4. Protect `main` and require PR review before merge.
-
-Issue templates, PR templates, repo structure, and agent instructions already come from the template itself.
-
 ## Recommended workflow
 
 1. Create a GitHub issue for an idea, bug, feature request, or workflow improvement.
@@ -37,26 +25,20 @@ Issue templates, PR templates, repo structure, and agent instructions already co
 8. An implementation agent may pick up the approved spec in the code repo without a second human prompt, link back to the merged spec and original issue, and mark the issue `in-progress`.
 9. When implementation ships, update the issue or implementation PRs with links and status, remove `in-progress`, and move the issue to `implemented`.
 
-## Example automation
+## Automation
 
-This template can support multiple automation patterns.
-One example lives in [`.github/workflows/request-spec-draft.yml`](./.github/workflows/request-spec-draft.yml).
+This repository includes a lightweight drafting workflow in [`.github/workflows/request-spec-draft.yml`](./.github/workflows/request-spec-draft.yml).
 
-That example uses the `needs-spec` label as a trigger:
+When `needs-spec` is applied to an issue, the workflow posts a short `@codex` comment that points the drafting agent at `AGENTS.md`. The drafting agent creates the spec PR, updates issue labels, and replies on the issue with the PR link.
 
-1. A human removes `backlog` and applies `needs-spec`.
-2. A workflow posts a short issue comment that tags `@codex` and points it at `AGENTS.md`.
-3. The drafting agent reads the issue, drafts the spec, updates the catalogs, and opens or updates a PR.
-4. On success, the drafting agent removes `needs-spec`, adds `spec-draft`, and replies on the issue with the PR link.
-5. If the drafting agent cannot proceed, it adds `blocked` and explains the blocker in an issue comment.
-
-This keeps the automation simple: the workflow only triggers the drafting task, and the drafting agent owns the resulting issue state.
+This keeps the automation narrow: the workflow triggers the drafting task, and the drafting agent owns the resulting issue state.
 
 ## Repository structure
 
 ```text
 AGENTS.md
 README.md
+SETUP.md
 templates/
   adr.md
   spec.md
@@ -75,7 +57,7 @@ decisions/
 Use issue labels to show what stage the work is in. Humans, workflows, and drafting agents may change labels when they are responsible for the transition.
 
 - `backlog`: captured idea, not ready for drafting yet
-- `needs-spec`: ready for a spec draft; in the bundled example automation this causes the repo to tag `@codex`; remove `backlog` when this is applied
+- `needs-spec`: ready for a spec draft; remove `backlog` when this is applied
 - `spec-draft`: a spec branch or PR exists; remove `needs-spec` when this is applied
 - `approved`: the spec PR is merged and implementation may start automatically; remove `spec-draft`
 - `in-progress`: implementation has started in a code repo

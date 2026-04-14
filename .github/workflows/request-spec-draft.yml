@@ -12,15 +12,20 @@ jobs:
   request:
     if: ${{ github.event.label.name == 'needs-spec' && github.event.issue.state == 'open' }}
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
     steps:
+      - name: Check trigger token is set
+        run: |
+          if [ -z "${{ secrets.GH_TOKEN }}" ]; then
+            echo "GH_TOKEN secret is not set." >&2
+            exit 1
+          fi
+
       - name: Ask @codex to draft the spec
         uses: actions/github-script@v7
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         with:
-          github-token: ${{ github.token }}
+          github-token: ${{ secrets.GH_TOKEN }}
           script: |
             const body = [
               "<!-- spec-draft-request -->",
